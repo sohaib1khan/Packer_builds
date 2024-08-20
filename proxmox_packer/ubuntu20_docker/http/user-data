@@ -1,0 +1,54 @@
+#cloud-config
+autoinstall:
+  version: 1
+  locale: en_US
+  keyboard:
+    layout: us
+  ssh:
+    install-server: true
+    allow-pw: true  # Enable password-based login
+    disable_root: true
+    ssh_quiet_keygen: true
+    allow_public_ssh_keys: true
+  packages: # Install packages required for the environment
+    - sudo
+    - net-tools
+    - openssh-server
+    - docker.io
+    - docker-compose
+    - python3
+    - python3-pip
+  runcmd:
+    - sudo systemctl enable ssh
+    - sudo systemctl restart ssh
+  storage:
+    layout:
+      name: direct
+    swap:
+      size: 0
+  user-data:
+    package_upgrade: false
+    timezone: America/New_York
+    users:
+      - name: USERNAME # Your desired username
+        groups: [adm, docker, sudo]
+        lock-passwd: false
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        shell: /bin/bash
+        passwd: 15om3passw0rd  # Your desired password
+        ssh_authorized_keys: 
+          - ssh-rsa AAAAB.....
+
+  # Static Network Configuration
+  network:
+    version: 2
+    ethernets:
+      ens18:  # Adjust this to the network interface in your environment (it could be eth0, ens18, etc.)
+        dhcp4: false # Disable DHCP
+        addresses:
+          - 192.168.1.149/24  # Static IP address
+        gateway4: 192.168.1.1  # Your network gateway
+        nameservers:
+          addresses:
+            - 8.8.8.8  # DNS server
+            - 8.8.4.4
